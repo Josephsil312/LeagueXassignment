@@ -7,7 +7,9 @@ type TasksContextType = {
     setFileList: React.Dispatch<React.SetStateAction<FileItem[]>>;
     updateFileStatus: (fileId: string, status: 'uploading' | 'uploaded' | 'failed' | 'cancelled') => void;
     selectedFile: FileItem | null;
-  setSelectedFile: React.Dispatch<React.SetStateAction<FileItem | null>>;
+    setSelectedFile: React.Dispatch<React.SetStateAction<FileItem | null>>;
+    isConnected:boolean;
+    setIsConnected:any;
 };
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -27,6 +29,8 @@ interface FileItem {
 const TasksContextProvider = ({ children }: PropsWithChildren<{}>) => {
     const [fileList, setFileList] = useState<FileItem[]>([]);
     const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+    
+    const [isConnected, setIsConnected] = useState(true);
     // Function to update file status
     const updateFileStatus = (fileId: string, status: 'uploading' | 'uploaded' | 'failed' | 'cancelled') => {
         setFileList(prevFileList =>
@@ -37,7 +41,7 @@ const TasksContextProvider = ({ children }: PropsWithChildren<{}>) => {
     };
 
     return (
-        <TasksContext.Provider value={{ fileList, setFileList, updateFileStatus,selectedFile, setSelectedFile }}>
+        <TasksContext.Provider value={{ fileList, setFileList, updateFileStatus,selectedFile, setSelectedFile,isConnected, setIsConnected }}>
             {children}
         </TasksContext.Provider>
     );

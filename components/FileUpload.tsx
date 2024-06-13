@@ -13,6 +13,7 @@ import {
     BackHandler,
     ScrollView,
     Button,
+    ActivityIndicator,
 } from "react-native";
 import DocumentPicker from 'react-native-document-picker';
 import storage, { getDownloadURL } from '@react-native-firebase/storage';
@@ -30,6 +31,7 @@ const Uploading = () => {
     const isFocused = useIsFocused();
     const tasksContext = useTasks();
     const [uploadTasks, setUploadTasks] = useState<{ [id: string]: any }>({});
+    const [loading, setLoading] = useState(true);
 
     if (!tasksContext) {
         throw new Error('useTasks must be used within a TasksContextProvider');
@@ -115,13 +117,14 @@ const Uploading = () => {
                     const uploadSpeed = calculateUploadSpeed(snapshot.bytesTransferred, elapsedTime);
                     setSpeed(prev => ({ ...prev, [uniqueId]: uploadSpeed }));
                     setUploadProgress(prev => ({ ...prev, [uniqueId]: progress }));
-
                     switch (snapshot.state) {
                         case 'paused':
                             console.log(`Upload for ${file.name} is paused`);
+                            
                             break;
                         case 'running':
                             console.log(`Upload for ${file.name} is running`);
+                            
                             break;
                         case 'success':
                             await onDisplayNotification(file.name);
@@ -260,6 +263,13 @@ const Uploading = () => {
         }
       };
    
+      useEffect(() => {
+        // Simulate loading files (e.g., from a server or local storage)
+        setTimeout(() => {
+          setLoading(false); // Set loading to false after data is loaded
+        }, 2000); // Simulated loading time
+      }, []);
+      
     return (
         <SafeAreaView style={styles.container}>
             <View>
@@ -281,26 +291,30 @@ const Uploading = () => {
                     <Text style={styles.browseToUploadText}>Browse File to upload</Text>
                 </Pressable>
                 
-                <FlatList
-                    data={fileList}
-                    keyExtractor={(item) => `${item.id}_${Math.floor(Math.random() * 100)}`}
-                    renderItem={({ item }) => (
-                        <ScrollView>
-                        <TouchableOpacity onPress={() => { setSelectedFile(item); navigation.navigate('FilePreview') }}>
-                            <View style={styles.fileItem}>
-                                <Image source={require('../assets/docs.png')} style={{ width: 25, height: 25, marginRight: 10 }} />
-                                <View >
-                                    <Text style={{ color: 'black' }}>Filename: {item.fileName}</Text>
-                                    <Text style={{ color: 'black' }}>File Type: {item.fileType}</Text>
-                                    <Text style={{ color: 'black' }}>
-                                        File status: Uploaded
-                                    </Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                        
-                        </ScrollView>)}
-                />
+                {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <FlatList
+            data={fileList}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <ScrollView>
+                <TouchableOpacity onPress={() => { setSelectedFile(item); navigation.navigate('FilePreview'); }}>
+                  <View style={styles.fileItem}>
+                    <Image source={require('../assets/docs.png')} style={{ width: 25, height: 25, marginRight: 10 }} />
+                    <View>
+                      <Text style={{ color: 'black' }}>Filename: {item.fileName}</Text>
+                      <Text style={{ color: 'black' }}>File Type: {item.fileType}</Text>
+                      <Text style={{ color: 'black' }}>
+                        File status: {item.status}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </ScrollView>
+            )}
+          />
+        )}
                 
             </View>
             

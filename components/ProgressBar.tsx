@@ -1,11 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Rect } from "react-native-svg";
- 
+import { useTasks } from "./FileuploadsContextProviders";
+import NetInfo from '@react-native-community/netinfo';
+
 export default function ProgressBar({ progress }) {
   const barWidth = 230;
   const progressWidth = (progress / 100) * barWidth;
- 
+  const tasksContext = useTasks();
+  if (!tasksContext) {
+    throw new Error('useTasks must be used within a TasksContextProvider');
+}
+  const {isConnected,setIsConnected } = tasksContext
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+        setIsConnected(state.isConnected); // Update isConnected state when network status changes
+        console.log('Network status changed:', state.isConnected);
+    });
+
+    return () => {
+        unsubscribe(); // Clean up listener on component unmount
+    };
+}, [isConnected]);
+
+const networkStatusText = isConnected ? `Uploading ${progress.toFixed(1)}%` : "Paused";
+
   return (
     <View style={styles.progressBarContainer}>
       <Svg width={barWidth} height="7">
@@ -24,7 +44,7 @@ export default function ProgressBar({ progress }) {
           ry={3.5}
         />
       </Svg>
-      <Text style={styles.progressText}>uploading {progress.toFixed(1)}%</Text>
+      <Text style={styles.progressText}>{networkStatusText}</Text>
     </View>
   );
 }
