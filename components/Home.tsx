@@ -5,7 +5,7 @@ import Uploading  from './FileUpload'
 const Home = () => {
   return (
     <View>
-       <Uploading image={undefined} progress={0}/>
+       <Uploading/>
     </View>
   )
 }
