@@ -18,6 +18,8 @@ import Home from './components/Home';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import FilePreview from './components/FilePreview';
+import TasksContextProvider from './components/FileuploadsContextProviders';
+import Splash from './components/Splash';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,15 +28,21 @@ const App = () => {
 
   return (
     <>
+    <TasksContextProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='Home'>
+        <Stack.Navigator initialRouteName='Splash'>
+          <Stack.Screen
+            name="Splash"
+            component={Splash}
+            options={{ headerShown: false }}
+          />
+          {/* <ProgressBar progress={60}/> */}
           <Stack.Screen
             name="Home"
             component={Home}
 
-            options={{ title: 'Welcome' }}
+            options={{ headerShown: false }}
           />
-          {/* <ProgressBar progress={60}/> */}
           <Stack.Screen
             name="FilePreview"
             component={FilePreview}
@@ -43,6 +51,7 @@ const App = () => {
           />
         </Stack.Navigator>
       </NavigationContainer>
+      </TasksContextProvider>
     </>
   );
 }
